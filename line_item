@@ -1,0 +1,51 @@
+create
+database 
+DEV_WEBINAR_ORDERS_RL_DB;
+create schema   TPCH;
+
+use database 
+DEV_WEBINAR_ORDERS_RL_DB;
+use schema   TPCH;
+
+-- Set variables for this sample data for the time frame to acquire
+set l_start_dt = dateadd( day, -16, to_date( '1998-07-02', 'yyyy-mm-dd' ) );
+set l_end_dt   = dateadd( day,   1, to_date( '1998-07-02', 'yyyy-mm-dd' ) );
+CREATE TABLE line_item (
+    l_orderkey INT,
+    o_orderdate DATE,
+    l_partkey INT,
+    l_suppkey INT,
+    l_linenumber INT,
+    l_quantity DECIMAL(15, 2),
+    l_extendedprice DECIMAL(15, 2),
+    l_discount DECIMAL(15, 2),
+    l_tax DECIMAL(15, 2),
+    l_returnflag CHAR(1),
+    l_linestatus CHAR(1),
+    l_shipdate DATE,
+    l_commitdate DATE,
+    l_receiptdate DATE,
+    l_shipinstruct STRING,
+    l_shipmode STRING,
+    l_comment STRING,
+    last_modified_dt TIMESTAMP
+);
+ 
+
+create warehouse dev_webinar_wh;
+use database DEV_WEBINAR_ORDERS_RL_DB;
+use schema   TPCH;
+use warehouse dev_webinar_wh;
+
+use database DEV_WEBINAR_ORDERS_RL_DB;
+use schema   TPCH;
+use warehouse dev_webinar_wh;
+
+ Set variables for this sample data for the time frame to acquire
+set l_start_dt = dateadd( day, -16, to_date( '1998-07-02', 'yyyy-mm-dd' ) );
+set l_end_dt   = dateadd( day,   1, to_date( '1998-07-02', 'yyyy-mm-dd' ) );
+
+select $l_start_dt, $l_end_dt;
+
+list @~/line_item;
+
