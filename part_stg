@@ -1,0 +1,64 @@
+use role     sysadmin;
+create database dev_webinar_orders_rl_db;
+use database dev_webinar_orders_rl_db;
+create schema tpch;
+use schema   tpch;
+create database dev_webinar_wh;
+use warehouse dev_webinar_wh;
+
+CREATE TABLE part_stg (
+    p_partkeyy INT,
+    p_name STRING,
+    p_mfgr STRING,
+    p_brand STRING,
+    p_type STRING,
+    p_size INT,
+    p_container STRING,
+    p_retailprice DECIMAL(18, 2),
+    p_comment STRING,
+    last_modified_dt TIMESTAMP,
+    dw_file_name STRING,
+    dw_file_row_no INT,
+    dw_load_ts TIMESTAMP
+);
+truncate table part_stg;
+copy into
+    part_stg
+from
+    (
+    select
+         s.$1                                            -- p_partkeyy
+        ,s.$2                                            -- p_name
+        ,s.$3                                            -- p_mfgr
+        ,s.$4                                            -- p_brand
+        ,s.$5                                            -- p_type
+        ,s.$6                                            -- p_size
+        ,s.$7                                            -- p_container
+        ,s.$8                                            -- p_retailprice
+        ,s.$9                                            -- p_comment
+        ,s.$10                                           -- last_modified_dt
+        ,metadata$filename                               -- dw_file_name
+        ,metadata$file_row_number                        -- dw_file_row_no
+        ,current_timestamp()                             -- dw_load_ts
+    from
+        @~ s
+    )
+purge         = true
+pattern       = '.*part/data.*\.csv\.gz'
+file_format   = ( type=csv field_optionally_enclosed_by = '"' )
+on_error      = skip_file
+--validation_mode = return_all_errors
+;
+
+--
+-- review history of load errors
+--
+select 
+    *
+from 
+    table(information_schema.copy_history(table_name=>'PART_STG', start_time=> dateadd(hours, -1, current_timestamp())))
+where
+    status = 'Loaded'
+order by
+    last_load_time desc
+;
